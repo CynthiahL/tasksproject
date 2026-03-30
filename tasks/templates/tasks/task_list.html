@@ -1,0 +1,70 @@
+#simple frontend to display the list of tasks
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <style>
+        body { font-family:Arial, sans-serif; margin: 40px;}
+        .task-item { margin-bottom: 10px; padding: 10px; border: 1px solid #ddd;}
+        .admin-badge { background: gold; padding: 2px 8px; border-radius: 3px;}
+        .task-owner { color:#666; font-size: 0.9em;}
+    </style>
+
+</head>
+<body>
+    <h1>Task List</h1>
+    </p>
+        Logged in as:<strong>{{ request.user.username }}</strong>
+        {% if is_admin %}
+            <span class="admin-badge">Admin View</span>
+        {% endif %}
+        | <a href="{% url 'logout' %}">Logout</a>
+    </p>
+
+    <a href="{% url 'task_create' %}">+ Add New Task</a>
+    
+    <ul>
+        {% for task in tasks %}
+        <li class="task-item">
+            <strong>{{ task.title }}</strong>
+            {%if is_admin %}
+                <span class="task-owner">by {{ task.owner.username }}</span>
+            {% endif %}
+            <br>
+            {{ task.description }} <br>
+            Completed: {{ task.completed|yesno:"Yes,No" }} <br>
+            Created: {{ task.created_at|date:"M-d-Y" }} <br>
+            <a href="{% url 'task_update' task.id %}">Edit</a> |
+            <a href="{% url 'task_delete' task.id %}"
+                onclick="return confirm('Are you sure you want to delete this task?');">Delete</a>
+        </li>
+        {% empty %}
+        <li>No tasks yet. <a href="{% url 'task_create' %}">Create one</a>.</li>
+        {% endfor %}
+    </ul>
+</body>
+
+</body>
+</head>
+<body>
+    <a href="{% url 'logout' %}">Logout</a>
+    <h1>Task List</h1>
+    <a href="{% url 'task_create' %}">Add Task</a>
+    <ul>
+        {% for task in tasks %}
+            <li>
+                <strong>{{ task.title }}</strong> - {{ task.description }} (Due: {{ task.due_date }})
+                <a href="{% url 'task_update' task.id %}">Edit</a>
+                <a href="{% url 'task_delete' task.id %}">Delete</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Create Task</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create Task</button>
+    </form>
+    <a href="{% url 'task_list' %}">Back</a>
+</body>
+</html>
